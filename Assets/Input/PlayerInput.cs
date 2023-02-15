@@ -167,6 +167,107 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""VehicleControls"",
+            ""id"": ""5a8e5402-46b7-45a5-8620-86cc4397ab03"",
+            ""actions"": [
+                {
+                    ""name"": ""Steering"",
+                    ""type"": ""Value"",
+                    ""id"": ""787797f8-0cdc-440e-83e4-9c47f1167f98"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Brake"",
+                    ""type"": ""Button"",
+                    ""id"": ""12d82091-736d-4631-9b53-b03dc874cc6f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Accelerate"",
+                    ""type"": ""Button"",
+                    ""id"": ""d84ba12e-a8cd-4ad5-9227-41a62103055d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""95d52619-d6b9-4aae-834a-c5af1bb02042"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Brake"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0214d294-8ffd-4962-a81a-2fe346c59ae8"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Accelerate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""94e75ab9-a5e1-4c94-a317-4eb90bd5ec3d"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""3df131d1-2e14-48a7-ab7f-a426ad73d8f5"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""8c08fada-041c-443e-91ee-31fd19e466cd"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0276e1b6-5bce-4284-940f-ddf864790f25"",
+                    ""path"": ""<Gamepad>/leftStick/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Steering"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -176,6 +277,11 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_CharacterControls_Move = m_CharacterControls.FindAction("Move", throwIfNotFound: true);
         m_CharacterControls_Run = m_CharacterControls.FindAction("Run", throwIfNotFound: true);
         m_CharacterControls_Look = m_CharacterControls.FindAction("Look", throwIfNotFound: true);
+        // VehicleControls
+        m_VehicleControls = asset.FindActionMap("VehicleControls", throwIfNotFound: true);
+        m_VehicleControls_Steering = m_VehicleControls.FindAction("Steering", throwIfNotFound: true);
+        m_VehicleControls_Brake = m_VehicleControls.FindAction("Brake", throwIfNotFound: true);
+        m_VehicleControls_Accelerate = m_VehicleControls.FindAction("Accelerate", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -280,10 +386,65 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         }
     }
     public CharacterControlsActions @CharacterControls => new CharacterControlsActions(this);
+
+    // VehicleControls
+    private readonly InputActionMap m_VehicleControls;
+    private IVehicleControlsActions m_VehicleControlsActionsCallbackInterface;
+    private readonly InputAction m_VehicleControls_Steering;
+    private readonly InputAction m_VehicleControls_Brake;
+    private readonly InputAction m_VehicleControls_Accelerate;
+    public struct VehicleControlsActions
+    {
+        private @PlayerInput m_Wrapper;
+        public VehicleControlsActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Steering => m_Wrapper.m_VehicleControls_Steering;
+        public InputAction @Brake => m_Wrapper.m_VehicleControls_Brake;
+        public InputAction @Accelerate => m_Wrapper.m_VehicleControls_Accelerate;
+        public InputActionMap Get() { return m_Wrapper.m_VehicleControls; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(VehicleControlsActions set) { return set.Get(); }
+        public void SetCallbacks(IVehicleControlsActions instance)
+        {
+            if (m_Wrapper.m_VehicleControlsActionsCallbackInterface != null)
+            {
+                @Steering.started -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnSteering;
+                @Steering.performed -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnSteering;
+                @Steering.canceled -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnSteering;
+                @Brake.started -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnBrake;
+                @Brake.performed -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnBrake;
+                @Brake.canceled -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnBrake;
+                @Accelerate.started -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnAccelerate;
+                @Accelerate.performed -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnAccelerate;
+                @Accelerate.canceled -= m_Wrapper.m_VehicleControlsActionsCallbackInterface.OnAccelerate;
+            }
+            m_Wrapper.m_VehicleControlsActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Steering.started += instance.OnSteering;
+                @Steering.performed += instance.OnSteering;
+                @Steering.canceled += instance.OnSteering;
+                @Brake.started += instance.OnBrake;
+                @Brake.performed += instance.OnBrake;
+                @Brake.canceled += instance.OnBrake;
+                @Accelerate.started += instance.OnAccelerate;
+                @Accelerate.performed += instance.OnAccelerate;
+                @Accelerate.canceled += instance.OnAccelerate;
+            }
+        }
+    }
+    public VehicleControlsActions @VehicleControls => new VehicleControlsActions(this);
     public interface ICharacterControlsActions
     {
         void OnMove(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+    }
+    public interface IVehicleControlsActions
+    {
+        void OnSteering(InputAction.CallbackContext context);
+        void OnBrake(InputAction.CallbackContext context);
+        void OnAccelerate(InputAction.CallbackContext context);
     }
 }
