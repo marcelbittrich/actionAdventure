@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class CharacterAnimationAndMovement : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class CharacterAnimationAndMovement : MonoBehaviour
 
     public float WalkSpeed = 1.0f;
     public float RunSpeed = 2.0f;
+    public float RotatingSpeed = 5.0f;
 
     bool _isRunning;
     bool _isMoving;
@@ -94,7 +96,15 @@ public class CharacterAnimationAndMovement : MonoBehaviour
     void HandleRotation()
     {
         Vector3 positionToLookAt = transform.position + new Vector3 (_velocity.x, 0, _velocity.z);
-        transform.LookAt(positionToLookAt);
+        Vector3 lookDirection = transform.position + transform.forward;
+
+        Vector3 currentFacing = Vector3.Lerp(lookDirection, positionToLookAt, RotatingSpeed * Time.deltaTime);
+
+        Debug.DrawLine(transform.position, transform.position + transform.forward, Color.blue);
+        Debug.DrawLine(transform.position, positionToLookAt, Color.red);
+        Debug.DrawLine(transform.position, currentFacing, Color.green);
+
+        transform.LookAt(currentFacing);
     }
 
     private void OnAnimatorMove()
