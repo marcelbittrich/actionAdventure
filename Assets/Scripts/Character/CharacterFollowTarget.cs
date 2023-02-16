@@ -4,16 +4,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 
-public class CharacterCamera : MonoBehaviour
+public class CharacterFollowTarget : MonoBehaviour
 {
     public GameObject FollowTarget;
 
+    public bool InvertVerticalAxis = false;
+    public bool InvertHorizontalAxis = false;
     public float RotationSpeedHorizontal = 50.0f;
     public float RotatingSpeedVertical = 50.0f;
-    public float MaxVerticalAngle = 250.0f;
-    public float MinVerticalAngle = 140.0f;
     
-
     PlayerInput _playerInput;
     Vector2 _inputLook;
 
@@ -26,7 +25,6 @@ public class CharacterCamera : MonoBehaviour
         _playerInput.CharacterControls.Look.canceled += OnLook;
     }
 
-    // 
     void OnLook(InputAction.CallbackContext context)
     { 
         _inputLook = context.ReadValue<Vector2>();
@@ -34,34 +32,28 @@ public class CharacterCamera : MonoBehaviour
 
     void HandleCameraRotation()
     {
-        Vector3 currentRotation = FollowTarget.transform.eulerAngles;
+        Vector3 currentRotation = FollowTarget.transform.localEulerAngles;
+        float invertHorizontal = InvertHorizontalAxis ? -1 : 1;
+        float invertVertical = InvertVerticalAxis ? -1 : 1;
 
-        float currentRotationDeltaHorizontal = _inputLook.x * RotationSpeedHorizontal * Time.deltaTime;
-        float currentRotationDeltaVertical = _inputLook.y * RotatingSpeedVertical * Time.deltaTime;
+        float currentRotationDeltaHorizontal = invertHorizontal * _inputLook.x * RotationSpeedHorizontal * Time.deltaTime ;
+        float currentRotationDeltaVertical = invertVertical * _inputLook.y * RotatingSpeedVertical * Time.deltaTime;
 
+        currentRotation.x += currentRotationDeltaVertical;
         currentRotation.y += currentRotationDeltaHorizontal;
-
-        FollowTarget.transform.eulerAngles = currentRotation;
-
-
-        FollowTarget.transform.rotation *= Quaternion.AngleAxis(currentRotationDeltaVertical, Vector3.right);
-
-        var angles = FollowTarget.transform.localEulerAngles;
-        angles.z = 0;
-
-        var angle = FollowTarget.transform.localEulerAngles.x;
+        currentRotation.z = 0;    
 
         //Clamp the Up/Down rotation
-        if (angle > 180 && angle < 340)
+        if (currentRotation.x > 180 && currentRotation.x < 340)
         {
-            angles.x = 340;
+            currentRotation.x = 340;
         }
-        else if (angle < 180 && angle > 40)
+        else if (currentRotation.x < 180 && currentRotation.x > 40)
         {
-            angles.x = 40;
+            currentRotation.x = 40;
         }
 
-        FollowTarget.transform.localEulerAngles = angles;
+        FollowTarget.transform.localEulerAngles = currentRotation;
     }
 
     void Update()
@@ -72,6 +64,9 @@ public class CharacterCamera : MonoBehaviour
     private void OnEnable()
     {
         _playerInput.CharacterControls.Enable();
+
+        // Reset FollowTarget Rotation to follow camera rotation.
+        FollowTarget.transform.eulerAngles = Camera.main.transform.eulerAngles;
     }
 
     private void OnDisable()

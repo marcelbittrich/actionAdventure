@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Claims;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +11,7 @@ public class CharacterAnimationAndMovement : MonoBehaviour
     Animator _animator;
     CharacterController _characterController;
     PlayerInput _playerInput;
+    GameObject _followTarget;
 
     // Movement Variables.
     Vector2 _moveInput;
@@ -17,16 +19,24 @@ public class CharacterAnimationAndMovement : MonoBehaviour
 
     public float WalkSpeed = 1.0f;
     public float RunSpeed = 2.0f;
+    public float SpeedTargetToCurrentDelta = 1.0f;
+    public float SpeedSmoothTime = 0.2f;
     public float RotatingSpeed = 5.0f;
+    public float AimRotatingSpeed = 20.0f;
 
     bool _isRunning;
     bool _isMoving;
-    float _horizontalVelocity;
+    bool _isAiming;
+    float _horizontalScalarVelocity;
+    float _smoothedScalarVelocity = 0;
+    Vector2 _smoothedAimVelocity = Vector2.zero;
+    Vector2 _smoothedAimVelocityDelta;
 
     void Awake()
     {
         _animator = GetComponent<Animator>();
-        _characterController = GetComponent<CharacterController>(); 
+        _characterController = GetComponent<CharacterController>();
+        _followTarget = GameObject.Find("FollowTarget");
         _playerInput = new PlayerInput();
 
         _playerInput.CharacterControls.Move.started += OnMoveInput;
@@ -35,16 +45,23 @@ public class CharacterAnimationAndMovement : MonoBehaviour
         _playerInput.CharacterControls.Run.started += OnRunInput;
         _playerInput.CharacterControls.Run.performed += OnRunInput;
         _playerInput.CharacterControls.Run.canceled += OnRunInput;
-
+        _playerInput.CharacterControls.Aim.started += OnAim;
+        _playerInput.CharacterControls.Aim.performed += OnAim;
+        _playerInput.CharacterControls.Aim.canceled += OnAim;
     }
 
-    void OnMoveInput (InputAction.CallbackContext context)      
-    { 
+    void OnMoveInput(InputAction.CallbackContext context)
+    {
         _moveInput = context.ReadValue<Vector2>();
     }
     void OnRunInput(InputAction.CallbackContext context)
     {
         _isRunning = context.ReadValueAsButton();
+    }
+    private void OnAim(InputAction.CallbackContext context)
+    {
+        float aimTriggerPosition = context.ReadValue<float>();
+        _isAiming = aimTriggerPosition > 0.5;
     }
 
     void HandleMovement()
@@ -59,10 +76,12 @@ public class CharacterAnimationAndMovement : MonoBehaviour
         right = right.normalized;
 
         _velocity = forward * currentMaxVelocity * _moveInput.y + right * currentMaxVelocity * _moveInput.x;
-        _horizontalVelocity = _velocity.magnitude;
+        _horizontalScalarVelocity = _velocity.magnitude;
 
+        _smoothedScalarVelocity = Mathf.SmoothDamp(_smoothedScalarVelocity, _horizontalScalarVelocity, ref SpeedTargetToCurrentDelta, SpeedSmoothTime);
+        _smoothedAimVelocity = Vector2.SmoothDamp(_smoothedAimVelocity, _moveInput, ref _smoothedAimVelocityDelta, SpeedSmoothTime);
 
-        if (_horizontalVelocity > 0.1)
+        if (_horizontalScalarVelocity > 0.1)
         {
             _isMoving = true;
         }
@@ -87,24 +106,50 @@ public class CharacterAnimationAndMovement : MonoBehaviour
         }
     }
 
-    void HandleAnimation() 
+    void HandleAnimation()
     {
-        _animator.SetFloat("VelocityZ", _horizontalVelocity);
+        _animator.SetFloat("ScalarVelocity", _smoothedScalarVelocity);
+        _animator.SetFloat("AimMoveY", _smoothedAimVelocity.y);
+        _animator.SetFloat("AimMoveX", _smoothedAimVelocity.x);
         _animator.SetBool("IsMoving", _isMoving);
+        _animator.SetBool("IsAiming", _isAiming);
     }
 
     void HandleRotation()
     {
-        Vector3 positionToLookAt = transform.position + new Vector3 (_velocity.x, 0, _velocity.z);
-        Vector3 lookDirection = transform.position + transform.forward;
+        Vector3 positionToLookAt;
 
-        Vector3 currentFacing = Vector3.Lerp(lookDirection, positionToLookAt, RotatingSpeed * Time.deltaTime);
+        // Save Follow Target Foward to reaply after rotating when aiming.
+        Vector3 followTargetFowrard = _followTarget.transform.forward;
 
-        Debug.DrawLine(transform.position, transform.position + transform.forward, Color.blue);
-        Debug.DrawLine(transform.position, positionToLookAt, Color.red);
-        Debug.DrawLine(transform.position, currentFacing, Color.green);
+        Vector3 aimDirection = _followTarget.transform.forward;
+        aimDirection.y = 0;
+        aimDirection = aimDirection.normalized;
 
-        transform.LookAt(currentFacing);
+        Debug.DrawLine(_followTarget.transform.position, _followTarget.transform.position + transform.forward, Color.blue);
+        Debug.DrawLine(_followTarget.transform.position, _followTarget.transform.position + aimDirection, Color.red);
+
+        if (!_isAiming)
+        {
+            positionToLookAt = transform.position + new Vector3(_velocity.x, 0, _velocity.z);
+
+            Vector3 lookDirection = transform.position + transform.forward;
+            Vector3 currentFacing = Vector3.Lerp(lookDirection, positionToLookAt, RotatingSpeed * Time.deltaTime);
+
+            transform.LookAt(currentFacing);
+        }
+        else
+        {
+            positionToLookAt = transform.position + aimDirection;
+
+            Vector3 lookDirection = transform.position + transform.forward;
+            Vector3 currentFacing = Vector3.Lerp(lookDirection, positionToLookAt, AimRotatingSpeed * Time.deltaTime);
+            
+            transform.LookAt(currentFacing);
+
+            // Apply saved Follow Target Foward after parent rotation to keep the camera direction.
+            _followTarget.transform.forward = followTargetFowrard;
+        }
     }
 
     private void OnAnimatorMove()
@@ -114,19 +159,13 @@ public class CharacterAnimationAndMovement : MonoBehaviour
         _characterController.Move(animationVelocity);
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         HandleMovement();
         HandleGravity();
         HandleRotation();
         HandleAnimation();
+
     }
 
     private void OnEnable()
