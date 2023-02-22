@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaveMaterial2
-  m_Shader: {fileID: -6465566751694194690, guid: 70326eb99ea169f4b95a460391e65ef9, type: 3}
+  m_Name: WaveMaterial2_1
+  m_Shader: {fileID: -6465566751694194690, guid: 2d2f8bddc5fcdda49909985090cbaec0, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 2
@@ -37,13 +37,14 @@ Material:
     - _Gravity: 9.81
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _WaveDirection: 48
-    - _WaveFlatness: 0.07
-    - _WavePointiness: 0.5
-    - _WavelengthLambda: 3.96
+    - _WaveDirection: 0
+    - _WaveFlatness: 0.036
+    - _WaveFlatness_1: 0.236
+    - _WavelengthLambda: 4.09
+    - _WavelengthLambda_1: 21.94
     m_Colors: []
   m_BuildTextureStacks: []
---- !u!114 &8113356394987874984
+--- !u!114 &736530211763612585
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
