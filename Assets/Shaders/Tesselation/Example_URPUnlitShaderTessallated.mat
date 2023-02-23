@@ -26,8 +26,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _MaxTessDistance: 20
-    - _Tess: 20
+    - _MaxTessDistance: 10.4
+    - _Tess: 20.8
     - _Weight: 0
     m_Colors: []
   m_BuildTextureStacks: []

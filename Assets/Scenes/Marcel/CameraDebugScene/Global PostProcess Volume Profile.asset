@@ -25,7 +25,7 @@ MonoBehaviour:
   texture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
---- !u!114 &-6715220084985343140
+--- !u!114 &-7059678552944357684
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39,8 +39,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   active: 0
   mode:
-    m_OverrideState: 1
-    m_Value: 2
+    m_OverrideState: 0
+    m_Value: 0
   gaussianStart:
     m_OverrideState: 0
     m_Value: 10
@@ -54,22 +54,22 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 0
   focusDistance:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 10
   aperture:
-    m_OverrideState: 1
-    m_Value: 3
+    m_OverrideState: 0
+    m_Value: 5.6
   focalLength:
-    m_OverrideState: 1
-    m_Value: 50.39
+    m_OverrideState: 0
+    m_Value: 50
   bladeCount:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 5
   bladeCurvature:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   bladeRotation:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
 --- !u!114 &-3213696330279787248
 MonoBehaviour:
@@ -186,9 +186,44 @@ MonoBehaviour:
   - {fileID: -8564840909391881156}
   - {fileID: -3213696330279787248}
   - {fileID: 9051194667744910682}
-  - {fileID: -6715220084985343140}
+  - {fileID: -7059678552944357684}
   - {fileID: -321702220282390469}
   - {fileID: -1135917882986466517}
+  - {fileID: 1331415802166155165}
+--- !u!114 &1331415802166155165
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 558a8e2b6826cf840aae193990ba9f2e, type: 3}
+  m_Name: ShadowsMidtonesHighlights
+  m_EditorClassIdentifier: 
+  active: 0
+  shadows:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
+  midtones:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
+  highlights:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
+  shadowsStart:
+    m_OverrideState: 0
+    m_Value: 0
+  shadowsEnd:
+    m_OverrideState: 0
+    m_Value: 0.3
+  highlightsStart:
+    m_OverrideState: 0
+    m_Value: 0.55
+  highlightsEnd:
+    m_OverrideState: 0
+    m_Value: 1
 --- !u!114 &2205843908002411420
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -219,8 +254,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   active: 0
   intensity:
-    m_OverrideState: 1
-    m_Value: -0.081
+    m_OverrideState: 0
+    m_Value: -0.511
   xMultiplier:
     m_OverrideState: 0
     m_Value: 1
@@ -232,7 +267,7 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   scale:
     m_OverrideState: 0
-    m_Value: 1
+    m_Value: 0.36
 --- !u!114 &9051194667744910682
 MonoBehaviour:
   m_ObjectHideFlags: 3

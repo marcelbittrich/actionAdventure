@@ -60,10 +60,10 @@ float _MaxTessDistance;
 [UNITY_domain("tri")]
 [UNITY_outputcontrolpoints(3)]
 [UNITY_outputtopology("triangle_cw")]
-[UNITY_partitioning("fractional_odd")]
+//[UNITY_partitioning("fractional_odd")]
 //[UNITY_partitioning("fractional_even")]
 //[UNITY_partitioning("pow2")]
-//[UNITY_partitioning("integer")]
+[UNITY_partitioning("integer")]
 [UNITY_patchconstantfunc("patchConstantFunction")]
 ControlPoint hull(InputPatch<ControlPoint, 3> patch, uint id : SV_OutputControlPointID)
 {
