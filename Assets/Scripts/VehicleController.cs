@@ -11,6 +11,7 @@ public class VehicleController : MonoBehaviour
     bool _isBreaking;
     
     public float MaxMotorTorque;
+    public float MaxBreakingTorque;
     public float MaxSteeringAngle;
     public List<AxleInfo> AxleInfos;
 
@@ -49,11 +50,11 @@ public class VehicleController : MonoBehaviour
         float motorTorque = 0;
         if (_isAccelerating)
         {
-            motorTorque = 800f;
+            motorTorque = MaxMotorTorque;
         }
         if (_isBreaking)
         {
-            motorTorque = -200f;
+            motorTorque = -MaxBreakingTorque;
         }
         Debug.Log(motorTorque);
         foreach (AxleInfo axleInfo in AxleInfos)
@@ -68,7 +69,26 @@ public class VehicleController : MonoBehaviour
                 axleInfo.LeftWheel.motorTorque = motorTorque;
                 axleInfo.RightWheel.motorTorque = motorTorque;
             }
+            ApplyLocalPositionToVisuals(axleInfo.LeftWheel);
+            ApplyLocalPositionToVisuals(axleInfo.RightWheel);
         }
+    }
+
+    public void ApplyLocalPositionToVisuals(WheelCollider collider)
+    {
+        if (collider.transform.childCount == 0) return;
+        Transform visualWheel = collider.transform.GetChild(0);
+
+        Vector3 position;
+        Quaternion rotation;
+        collider.GetWorldPose(out position, out rotation);
+
+        visualWheel.transform.position = position;
+        visualWheel.transform.rotation = Quaternion.Euler(
+            rotation.eulerAngles.x,
+            rotation.eulerAngles.y,
+            rotation.eulerAngles.z + 90  // Currently needed to keep the needed rotation of the cylider.
+        );
     }
 
     private void OnEnable()
