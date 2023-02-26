@@ -69,8 +69,8 @@ public class VehicleController : MonoBehaviour
                 axleInfo.LeftWheel.motorTorque = motorTorque;
                 axleInfo.RightWheel.motorTorque = motorTorque;
             }
-            ApplyLocalPositionToVisuals(axleInfo.LeftWheel);
-            ApplyLocalPositionToVisuals(axleInfo.RightWheel);
+            // ApplyLocalPositionToVisuals(axleInfo.LeftWheel);
+            // ApplyLocalPositionToVisuals(axleInfo.RightWheel);
         }
     }
 
@@ -87,7 +87,7 @@ public class VehicleController : MonoBehaviour
         visualWheel.transform.rotation = Quaternion.Euler(
             rotation.eulerAngles.x,
             rotation.eulerAngles.y,
-            rotation.eulerAngles.z + 90  // Currently needed to keep the needed rotation of the cylider.
+            rotation.eulerAngles.z
         );
     }
 
