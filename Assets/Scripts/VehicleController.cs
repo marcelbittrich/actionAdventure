@@ -11,7 +11,7 @@ public class VehicleController : MonoBehaviour
     bool _isBreaking;
     
     public float MaxMotorTorque;
-    public float MaxBreakingTorque;
+    public float MaxBrakeTorque;
     public float MaxSteeringAngle;
     public List<AxleInfo> AxleInfos;
 
@@ -52,11 +52,11 @@ public class VehicleController : MonoBehaviour
         {
             motorTorque = MaxMotorTorque;
         }
+        float brakeTorque = 0;
         if (_isBreaking)
         {
-            motorTorque = -MaxBreakingTorque;
+            brakeTorque = MaxBrakeTorque;
         }
-        Debug.Log(motorTorque);
         foreach (AxleInfo axleInfo in AxleInfos)
         {
             if (axleInfo.IsSteering)
@@ -69,8 +69,13 @@ public class VehicleController : MonoBehaviour
                 axleInfo.LeftWheel.motorTorque = motorTorque;
                 axleInfo.RightWheel.motorTorque = motorTorque;
             }
-            // ApplyLocalPositionToVisuals(axleInfo.LeftWheel);
-            // ApplyLocalPositionToVisuals(axleInfo.RightWheel);
+            if (axleInfo.IsBreak)
+            {
+                axleInfo.LeftWheel.brakeTorque = brakeTorque;
+                axleInfo.RightWheel.brakeTorque = brakeTorque;
+            }
+            ApplyLocalPositionToVisuals(axleInfo.LeftWheel);
+            ApplyLocalPositionToVisuals(axleInfo.RightWheel);
         }
     }
 
@@ -109,4 +114,5 @@ public class AxleInfo
     public WheelCollider RightWheel;
     public bool IsMotor;
     public bool IsSteering;
+    public bool IsBreak;
 }
