@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,14 +8,29 @@ public class VehicleController : MonoBehaviour
     float _steeringInput;
     bool _isAccelerating;
     bool _isBreaking;
+    float _motorTorqueT = 0;
+    Rigidbody _rigidbody;
+
+    // If speed smaller than threshold, then breaking puts car in reverse.
+    const float _thresholdSpeedReverse = 0.02f;
     
     public float MaxMotorTorque;
+    public float MaxReverseMotorTorque;
     public float MaxBrakeTorque;
     public float MaxSteeringAngle;
     public List<AxleInfo> AxleInfos;
 
+    float Speed
+    {
+        get {
+            return _rigidbody.transform.InverseTransformVector(_rigidbody.velocity).z;
+        }
+    }
+
     private void Awake()
     {
+        _rigidbody = GetComponent<Rigidbody>();
+
         _playerInput = new PlayerInput();
         _playerInput.VehicleControls.Steering.started += OnSteeringInput;
         _playerInput.VehicleControls.Steering.performed += OnSteeringInput;
@@ -47,16 +61,26 @@ public class VehicleController : MonoBehaviour
     public void FixedUpdate()
     {
         float steering = MaxSteeringAngle * _steeringInput;
-        float motorTorque = 0;
+        float motorTorque = Mathf.Lerp(0, MaxMotorTorque, _motorTorqueT);
+        Debug.Log($"t: {_motorTorqueT} torque: {motorTorque}");
+        float brakeTorque = 0;
+
         if (_isAccelerating)
         {
-            motorTorque = MaxMotorTorque;
+            _motorTorqueT = Mathf.Clamp(_motorTorqueT + 0.5f * Time.deltaTime, 0, 1.0f);
+        } else
+        {
+            _motorTorqueT = Mathf.Clamp(_motorTorqueT - 0.5f * Time.deltaTime, 0, 1.0f);
         }
-        float brakeTorque = 0;
-        if (_isBreaking)
+
+        if (_isBreaking && Speed > _thresholdSpeedReverse)
         {
             brakeTorque = MaxBrakeTorque;
+        } else if (_isBreaking)
+        {
+            motorTorque = -MaxReverseMotorTorque;
         }
+
         foreach (AxleInfo axleInfo in AxleInfos)
         {
             if (axleInfo.IsSteering)
